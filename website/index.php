@@ -1,39 +1,105 @@
-
 <html>
-    <head>
-        <title>POZOS</title>
-    </head>
+<head>
+    <title>POZOS</title>
+</head>
 
-    <body>
-        <h1>Student Checking App</h1>
-        <ul>
-            <form action="" method="POST">
-            <!--<label>Enter student name:</label><br />
-            <input type="text" name="" placeholder="Student Name" required/>
-            <br /><br />-->
-            <button type="submit" name="submit">List Student</button>
-            </form>
+<body>
 
-            <?php
-              if($_SERVER['REQUEST_METHOD'] == "POST" and isset($_POST['submit']))
-              {
-              $username = getenv('USERNAME');
-              $password = getenv('PASSWORD');
-              if ( empty($username) ) $username = 'fake_username';
-              if ( empty($password) ) $password = 'fake_password';
-              $context = stream_context_create(array(
-                "http" => array(
-                "header" => "Authorization: Basic " . base64_encode("$username:$password"),
-              )));
+<h1>Student Checking App</h1>
 
-              $url = 'http://<api_ip_or_name:port>/pozos/api/v1.0/get_student_ages';
-              $list = json_decode(file_get_contents($url, false, $context), true);
-              echo "<p style='color:red;; font-size: 20px;'>This is the list of the student with age</p>";
-              foreach($list["student_ages"] as $key => $value) {
-                  echo "- $key are $value years old <br>";
-              }
-             }
-            ?>
-        </ul>
-    </body>
+<form action="" method="POST">
+    <button type="submit" name="submit">
+        List Student
+    </button>
+</form>
+
+<?php
+
+if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['submit']))
+{
+    /*
+    ============================================
+    Lecture des variables d'environnement Docker
+    ============================================
+    */
+
+    $username = getenv('USERNAME');
+    $password = getenv('PASSWORD');
+    $api      = getenv('API');
+    $port     = getenv('API_PORT');
+
+    /*
+    ============================================
+    Valeurs par défaut si variables absentes
+    ============================================
+    */
+
+    if(empty($username)) $username = "fake_username";
+    if(empty($password)) $password = "fake_password";
+
+    /*
+    IMPORTANT :
+    api = nom du service Docker Compose
+    port = port interne du container API Flask
+    */
+
+    if(empty($api))  $api  = "api";
+    if(empty($port)) $port = "5000";
+
+    /*
+    ============================================
+    Construction du header HTTP Basic Auth
+    ============================================
+    */
+
+    $context = stream_context_create(array(
+        "http" => array(
+            "header" => "Authorization: Basic " .
+            base64_encode("$username:$password")
+        )
+    ));
+
+    /*
+    ============================================
+    URL de l'API Flask
+    ============================================
+    */
+
+    $url = "http://{$api}:{$port}/pozos/api/v1.0/get_student_ages";
+
+    /*
+    ============================================
+    Appel API Flask
+    ============================================
+    */
+
+    $response = file_get_contents($url, false, $context);
+
+    /*
+    ============================================
+    Conversion JSON → tableau PHP
+    ============================================
+    */
+
+    $list = json_decode($response, true);
+
+    /*
+    ============================================
+    Affichage
+    ============================================
+    */
+
+    echo "<p style='color:red; font-size:20px;'>
+            This is the list of the student with age
+          </p>";
+
+    foreach($list["student_ages"] as $key => $value)
+    {
+        echo "- $key are $value years old <br>";
+    }
+}
+
+?>
+
+</body>
 </html>

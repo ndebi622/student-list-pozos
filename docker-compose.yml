@@ -1,0 +1,39 @@
+services:
+
+  api:
+    image: student-api:v1
+    container_name: student-api
+
+    volumes:
+      - ./simple_api/student_age.json:/data/student_age.json
+
+    ports:
+      - "5000:5000"
+
+    networks:
+      - pozos-network
+
+  website:
+    image: php:apache
+    container_name: student-website
+
+    depends_on:
+      - api
+
+    environment:
+      USERNAME: toto
+      PASSWORD: python
+      API: api
+      API_PORT: 5000
+
+    volumes:
+      - ./website:/var/www/html
+
+    ports:
+      - "8080:80"
+
+    networks:
+      - pozos-network
+
+networks:
+  pozos-network:
