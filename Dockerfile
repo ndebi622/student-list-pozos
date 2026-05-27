@@ -21,6 +21,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY ./simple_api/student_age.py .
 
 RUN mkdir /data
+COPY ./simple_api/student_age.json /data/student_age.json
 
 # =========================
 # Stage final
