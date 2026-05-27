@@ -39,6 +39,7 @@ WORKDIR /student-list-pozos/app
 COPY --from=builder /usr/local/lib/python3.13 /usr/local/lib/python3.13
 COPY --from=builder /usr/local/bin /usr/local/bin
 COPY --from=builder /student-list-pozos/app .
+COPY --from=builder /data/student_age.json /data/student_age.json
 
 VOLUME /data
 
