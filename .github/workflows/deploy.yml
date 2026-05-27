@@ -34,8 +34,8 @@ jobs:
 
           cd student-list-revision
 
-          docker-compose down || true
+          docker compose down || true
 
-          docker-compose up -d --build
+          docker compose up -d
 
           EOF
