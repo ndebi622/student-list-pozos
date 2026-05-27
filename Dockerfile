@@ -29,9 +29,9 @@ RUN mkdir /data
 FROM python:3.13-slim
 
 RUN apt update && apt install -y \
-    libldap-2.5-0 \
-    libsasl2-2 \
-    libssl3
+    libldap2-dev \
+    libsasl2-dev \
+    libssl-dev
 
 WORKDIR /student-list-pozos/app
 
