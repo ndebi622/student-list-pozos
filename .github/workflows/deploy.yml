@@ -1,0 +1,46 @@
+name: Python CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t student-list-app .
+
+      - name: Save SSH private key
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
+
+          docker stop student-list-app || true
+          docker rm student-list-app || true
+
+          docker rmi student-list-app || true
+
+          cd /home/ubuntu
+
+          rm -rf student-list-revision
+
+          git clone https://github.com/ndebi622/student-list-pozos.git student-list-revision
+
+          cd student-list-revision
+
+          docker build -t student-list-app .
+
+          docker run -d -p 5000:5000 --name student-list-app student-list-app
+
+          EOF
