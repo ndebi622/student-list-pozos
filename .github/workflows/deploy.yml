@@ -22,14 +22,9 @@ jobs:
           echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
           chmod 600 private_key.pem
 
-      - name: Deploy to EC2
+           - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
-
-          docker stop student-list-app || true
-          docker rm student-list-app || true
-
-          docker rmi student-list-app || true
 
           cd /home/ubuntu
 
@@ -39,8 +34,8 @@ jobs:
 
           cd student-list-revision
 
-          docker build -t student-list-app .
+          docker compose down || true
 
-          docker run -d -p 5000:5000 --name student-list-app student-list-app
+          docker compose up -d --build
 
           EOF
