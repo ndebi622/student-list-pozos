@@ -21,6 +21,7 @@ services:
   website:
     build:
       context: ./website
+
       dockerfile: Dockerfile
 
     image: student-website:v1
