@@ -1,7 +1,12 @@
 services:
 
   api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
     image: student-api:v1
+
     container_name: student-api
 
     volumes:
@@ -14,7 +19,12 @@ services:
       - pozos-network
 
   website:
-    image: php:apache
+    build:
+      context: ./website
+      dockerfile: Dockerfile
+
+    image: student-website:v1
+
     container_name: student-website
 
     depends_on:
@@ -25,9 +35,6 @@ services:
       PASSWORD: python
       API: api
       API_PORT: 5000
-
-    volumes:
-      - ./website:/var/www/html
 
     ports:
       - "8080:80"
