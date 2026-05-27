@@ -1,20 +1,41 @@
+FROM python:3.13-slim AS builder
 
-FROM python:3.13-slim
 LABEL maintainer="ndoumbendebi@gmail.com" \
       description="Student-list-API-POZOS"
-COPY ./simple_api/student_age.py /student_age.py
-COPY requirements.txt /
-RUN apt update -y && \
-    apt install -y \
+
+WORKDIR /student-list-pozos/app
+
+COPY requirements.txt .
+
+RUN apt update && apt install -y \
     gcc \
     build-essential \
     python3-dev \
     libsasl2-dev \
     libldap2-dev \
     libssl-dev
-RUN pip3 install -r /requirements.txt
-RUN mkdir /data
-VOLUME /data
-EXPOSE 5000
-CMD ["python3", "./student_age.py"]
 
+#EMPECHE PIP de conserver du cache inutile
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY ./simple_api/student_age.py .
+
+RUN mkdir /data
+
+# =========================
+# Stage final
+# =========================
+
+FROM python:3.13-slim
+
+WORKDIR /student-list-pozos/app
+
+COPY --from=builder /usr/local/lib/python3.13 /usr/local/lib/python3.13
+COPY --from=builder /usr/local/bin /usr/local/bin
+COPY --from=builder /student-list-pozos/app .
+
+VOLUME /data
+
+EXPOSE 5000
+
+CMD ["python3", "student_age.py"]
